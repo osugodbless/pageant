@@ -1,70 +1,70 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 
-// The path to our permanent storage file
-const dbPath = path.join(__dirname, 'data.json');
+// Load environment variables
+dotenv.config();
 
-// 1. Load the database into memory ONCE when the server starts
-let contestantsCache = [];
-try {
-    const data = fs.readFileSync(dbPath, 'utf8');
-    contestantsCache = JSON.parse(data);
-    console.log("Database successfully loaded into memory.");
-} catch (err) {
-    console.error("Error reading initial database file:", err);
-    contestantsCache = [];
-}
+// Define Contestant Schema
+const contestantSchema = new mongoose.Schema({
+    id: String,
+    name: String,
+    stageName: String,
+    school: String,
+    bio: String,
+    funFact: String,
+    image: String,
+    votes: { type: Number, default: 0 }
+});
 
-// Variables to handle write queuing safely
-let isWriting = false;
-let pendingWrite = false;
+const Contestant = mongoose.model('Contestant', contestantSchema);
 
-// Helper: Safely save data to file asynchronously in the background
-const saveContestantsAsync = () => {
-    // If a save is already in progress, flag that we need to save again after it finishes
-    if (isWriting) {
-        pendingWrite = true;
-        return;
-    }
+// Connect to MongoDB
+let isConnected = false;
 
-    isWriting = true;
-
-    // Write to the file asynchronously without blocking the server
-    fs.writeFile(dbPath, JSON.stringify(contestantsCache, null, 2), (err) => {
-        isWriting = false;
-
-        if (err) {
-            console.error("Error saving database file:", err);
+const connectDB = async () => {
+    if (isConnected) return;
+    
+    try {
+        if (!process.env.MONGODB_URI) {
+            console.warn("WARNING: MONGODB_URI is not set in your .env file!");
+            return;
         }
-
-        // If another vote came in while we were writing, trigger another save
-        if (pendingWrite) {
-            pendingWrite = false;
-            saveContestantsAsync();
-        }
-    });
-};
-
-// Return the blazing fast in-memory array instead of reading the disk
-const getContestants = () => {
-    return contestantsCache;
-};
-
-// Function to add votes safely
-const addVotes = (id, numberOfVotes) => {
-    // 2. Update RAM instantly (Safe from Race Conditions because Node memory is single-threaded)
-    const candidate = contestantsCache.find(c => c.id === id);
-
-    if (candidate) {
-        // Add the votes in memory
-        candidate.votes += numberOfVotes;
-
-        // 3. Trigger a background save to the hard drive
-        saveContestantsAsync();
-
-        return true;
+        // Simplified connection string suitable for Mongoose 6+
+        await mongoose.connect(process.env.MONGODB_URI);
+        isConnected = true;
+        console.log("Connected to MongoDB successfully!");
+    } catch (err) {
+        console.error("MongoDB Connection Error:", err);
     }
-    return false;
 };
 
-module.exports = { getContestants, addVotes };
+// Async Helper: Get all contestants
+const getContestants = async () => {
+    await connectDB();
+    try {
+        const contestants = await Contestant.find({}).sort({ id: 1 }).lean();
+        return contestants;
+    } catch (err) {
+        console.error("Error getting contestants:", err);
+        return [];
+    }
+};
+
+// Async Function to safely add votes
+const addVotes = async (id, numberOfVotes) => {
+    await connectDB();
+    try {
+        // Atomic operations ($inc) prevent race conditions intrinsically at the DB layer
+        const result = await Contestant.findOneAndUpdate(
+            { id: id },
+            { $inc: { votes: numberOfVotes } },
+            { new: true } // returns the updated document
+        );
+        return !!result;
+    } catch (err) {
+        console.error("Error adding votes:", err);
+        return false;
+    }
+};
+
+module.exports = { getContestants, addVotes, Contestant, connectDB };

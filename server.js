@@ -11,8 +11,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 const VOTE_COST = 200; // 1 Vote = 100 Naira
 
 // API: Get all contestants
-app.get('/api/contestants', (req, res) => {
-    res.json(getContestants());
+app.get('/api/contestants', async (req, res) => {
+    res.json(await getContestants());
 });
 
 // API: Start Voting Process
@@ -48,10 +48,10 @@ app.get('/verify-vote', async (req, res) => {
         const votesToAdd = Math.floor(amountPaid / VOTE_COST);
         
         // Update "Database"
-        addVotes(contestantId, votesToAdd);
+        await addVotes(contestantId, votesToAdd);
 
         // Get the name for the success message
-        const allContestants = getContestants();
+        const allContestants = await getContestants();
         const candidate = allContestants.find(c => c.id === contestantId);
         
         // Redirect user to success page
