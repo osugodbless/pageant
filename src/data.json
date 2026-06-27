@@ -6,22 +6,33 @@
     "bio": "A writer, kind by heart, passionate by pen. Sugar believes every girl has a story worth hearing. Here to let her voice be heard, one word at a time",
     "funFact": "I smile a lot",
     "image": "/img/stephanie.jpg",
-    "votes": 1
+    "votes": 0
   },
   {
     "id": "2",
-    "name": "Eloho Ochonogor",
-    "school": "Federal Government College",
-    "bio": "A poet who believes art can change the narrative of Nigerian youths.",
-    "image": "/img/eloho.jpg",
+    "name": "Ogwu Ezinne Kristal",
+    "stageName": "Kristal",
+    "bio": "An ambivert who loves spending quality time with family and close friends. I value mutual respect and appreciation in all relationships",
+    "funFact": "I like money",
+    "image": "/img/kristal.jpg",
     "votes": 0
   },
   {
     "id": "3",
-    "name": "Joseph Onosie",
-    "school": "Command Secondary School",
-    "bio": "An aspiring debater passionate about fixing the education system.",
-    "image": "/img/joseph.jpg",
+    "name": "Charles Precious",
+    "stageName": "Pretty Angel",
+    "bio": "Precious lives by a simple philosophy: show up, lift others up, and extend a helping hand wherever it’s needed most",
+    "funFact": "I am jovial",
+    "image": "/img/precious.jpg",
+    "votes": 0
+  },
+  {
+    "id": "4",
+    "name": "Chibuike Christiana",
+    "stageName": "Cee Anne",
+    "bio": "Christiana advocates for truth and dedicated to speaking up where it matters most and standing firm for girls who need a voice",
+    "funFact": "I sing a lot, and I'm always happy",
+    "image": "/img/christiana.jpg",
     "votes": 0
   }
 ]

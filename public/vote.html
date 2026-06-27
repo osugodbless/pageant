@@ -1,63 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote - MGG</title>
+    <title>Vote - Miss Greater Grace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-light">
-    
-    <nav class="navbar navbar-dark bg-success">
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="#">Greater Grace Edu. Consults</a>
-            <div>
-                <a href="index.html" class="btn btn-outline-light btn-sm">About</a>
-                <a href="vote.html" class="btn btn-light btn-sm">Vote Now</a>
+            <a class="navbar-brand" href="vote.html">Greater Grace Edu. Consults</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <a href="#contestants" class="btn nav-btn nav-btn-filled ms-2">Vote Now</a>
             </div>
         </div>
     </nav>
 
-    <div class="container py-5">
-        <h2 class="text-center mb-4">Vote for <span style="color: #198754; font-size: larger; font-family: 'Courier New', Courier, monospace;">Miss Greater Grace</span></h2>
-        <p class="text-center text-muted">1 Vote = ₦200. You can vote multiple times!</p>
-        
-        <div class="row" id="contestant-list">
-            <div class="text-center">Loading contestants...</div>
+    <!-- Header Section -->
+    <header class="hero-section" style="padding: 60px 0 40px;">
+        <div class="container">
+            <h1 class="hero-title animate-fade-in">Vote for <span>Miss Greater Grace</span></h1>
+            <p class="hero-subtitle animate-fade-in" style="animation-delay: 0.1s;">
+                Support your favorite candidate. 1 Vote = ₦200. You can vote multiple times!
+            </p>
+        </div>
+    </header>
+
+    <!-- Voting Section -->
+    <div class="container pb-5" id="contestants">
+        <div class="row g-4" id="contestant-list">
+            <div class="text-center text-muted">Loading contestants...</div>
         </div>
     </div>
 
+    <!-- Modern Voting Modal -->
     <div class="modal fade" id="voteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cast Your Vote</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title modal-title-custom">Support Your Candidate</h5>
+                    <button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Voting for: <strong id="modal-candidatename"></strong></p>
-                    <p class="text-muted">1 Vote = ₦200. You can vote multiple times!</p>
+                <div class="modal-body modal-body-custom">
+                    <div class="mb-4 text-center">
+                        <p class="mb-1" style="color: var(--text-secondary);">You are voting for:</p>
+                        <h4 id="modal-candidatename" style="color: var(--accent-green); font-weight: 700;"></h4>
+                    </div>
 
                     <form id="voteForm">
                         <input type="hidden" id="modal-candidateid">
                         <div class="mb-3">
-                            <label>Your Name</label>
-                            <input type="text" class="form-control" id="voter-name" required placeholder="Enter your full name">
+                            <label class="form-label-custom">Your Name</label>
+                            <input type="text" class="form-control form-control-custom" id="voter-name" required
+                                placeholder="Enter your full name">
                         </div>
                         <div class="mb-3">
-                            <label>Your Email Address</label>
-                            <input type="email" class="form-control" id="voter-email" required placeholder="name@example.com">
+                            <label class="form-label-custom">Email Address</label>
+                            <input type="email" class="form-control form-control-custom" id="voter-email" required
+                                placeholder="name@example.com">
                         </div>
-                        <div class="mb-3">
-                            <label>Amount to Spend (₦)</label>
-                            <input type="number" class="form-control" id="voter-amount" min="200" value="200" required>
-                            <small class="text-success" id="vote-count-preview">Equals 1 Vote</small>
+                        <div class="mb-4">
+                            <label class="form-label-custom">Amount to Spend (₦)</label>
+                            <input type="number" class="form-control form-control-custom" id="voter-amount" min="200"
+                                step="200" value="200" required>
+                            <div class="text-end">
+                                <span class="vote-preview-text" id="vote-count-preview">Equals 1 Vote</span>
+                            </div>
                         </div>
-                        <button type="submit" id="payButton" class="btn btn-success w-100" onclick="showLoadingState(this)">
-                            <!-- The Bootstrap spinner (hidden by default) -->
-                            <span id="paySpinner" class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
-                            <!-- The button text -->
+                        <button type="submit" id="payButton" class="btn btn-pay w-100" onclick="showLoadingState(this)">
+                            <span id="paySpinner" class="spinner-border spinner-border-sm d-none me-2" role="status"
+                                aria-hidden="true"></span>
                             <span id="payText">Proceed to Pay</span>
                         </button>
                     </form>
@@ -71,50 +91,73 @@
         fetch('/api/contestants')
             .then(res => res.json())
             .then(data => {
-                console.log("MY DATA:", data);
                 const list = document.getElementById('contestant-list');
                 list.innerHTML = ''; // Clear loading text
-                data.forEach(c => {
+
+                data.forEach((c, index) => {
+                    // Add staggered animation delay
+                    const delay = 0.1 * (index + 1);
+
                     list.innerHTML += `
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <img src="${c.image}" class="card-img-top w-100" alt="${c.name}">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title"><strong class="text-primary">${c.name}</strong></h5>
-                                    <p class="text-muted small"><em>aka "${c.stageName}"</em></p>
-                                    <p class="card-text">${c.bio}</p>
+                        <div class="col-md-6 col-lg-4 animate-fade-in" style="animation-delay: ${delay}s;">
+                            <div class="card-custom">
+                                <div class="card-img-wrapper">
+                                    <img src="${c.image}" class="card-img-top" alt="${c.name}">
+                                </div>
+                                <div class="card-body-custom">
+                                    <h5 class="candidate-name">${c.name}</h5>
+                                    ${c.stageName ? `<div class="candidate-stage-name">aka "${c.stageName}"</div>` : ''}
+                                    ${c.school ? `<div class="candidate-stage-name"><i class="bi bi-building"></i> ${c.school}</div>` : ''}
+                                    
+                                    <p class="candidate-bio">${c.bio}</p>
 
-                                    <div class="text-center text-start bg-light text-primary p-2 rounded small mb-3 border-start border-primary border-3">
+                                    ${c.funFact ? `
+                                    <div class="fun-fact-box">
                                         <strong>💡 Fun Fact:</strong> ${c.funFact}
-                                    </div>
+                                    </div>` : ''}
 
-                                    <div class="badge bg-warning text-dark mb-3 fs-6">Votes: ${c.votes}</div>
-                                    <br>
-                                    <button class="btn btn-outline-success" onclick="openVoteModal('${c.id}', '${c.name}')">Vote for Me</button>
+                                    <div class="text-center mt-auto">
+                                        <div class="votes-badge">
+                                            Votes: ${c.votes}
+                                        </div>
+                                        <button class="btn btn-vote" onclick="openVoteModal('${c.id}', '${c.name.replace(/'/g, "\\'")}')">
+                                            Vote for ${c.name.split(' ').pop()}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     `;
                 });
+            })
+            .catch(err => {
+                document.getElementById('contestant-list').innerHTML = '<div class="text-center text-danger">Failed to load contestants. Please try again later.</div>';
             });
 
         // 2. Handle Vote Modal
         function openVoteModal(id, name) {
             document.getElementById('modal-candidateid').value = id;
             document.getElementById('modal-candidatename').innerText = name;
+
+            // Reset amount and preview
+            document.getElementById('voter-amount').value = 200;
+            document.getElementById('vote-count-preview').innerText = 'Equals 1 Vote';
+
             new bootstrap.Modal(document.getElementById('voteModal')).show();
         }
 
         // 3. Update "Equals X Votes" text dynamically
-        document.getElementById('voter-amount').addEventListener('input', function(e) {
-            const votes = Math.floor(e.target.value / 200);
-            document.getElementById('vote-count-preview').innerText = `Equals ${votes} Votes`;
+        document.getElementById('voter-amount').addEventListener('input', function (e) {
+            const amount = Math.max(0, e.target.value);
+            const votes = Math.floor(amount / 200);
+            document.getElementById('vote-count-preview').innerText = `Equals ${votes} Vote${votes !== 1 ? 's' : ''}`;
         });
 
         // 4. Submit Payment Request
-        document.getElementById('voteForm').addEventListener('submit', function(e) {
+        document.getElementById('voteForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const id = document.getElementById('modal-candidateid').value;
+            const voterName = document.getElementById('voter-name') ? document.getElementById('voter-name').value : '';
             const email = document.getElementById('voter-email').value;
             const amount = document.getElementById('voter-amount').value;
 
@@ -122,59 +165,54 @@
             fetch('/api/vote/start', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contestantId: id, name, email, amount })
+                body: JSON.stringify({ contestantId: id, name: voterName, email, amount })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status) {
-                    // Redirect user to Paystack
-                    window.location.href = data.url;
-                } else {
-                    alert('Error initializing payment.');
-                }
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status) {
+                        // Redirect user to Paystack
+                        window.location.href = data.url;
+                    } else {
+                        alert('Error initializing payment. ' + (data.message || ''));
+                        resetButton();
+                    }
+                })
+                .catch(err => {
+                    alert('Network error. Please try again.');
+                    resetButton();
+                });
         });
-    </script>
-    
-    <script>
-        function showLoadingState(button) {
-            // 1. Find the form this button belongs to
-            const form = button.closest('form');
-            
-            // 2. Check if the form has empty required fields
-            // If it is NOT valid, stop the function right here. 
-            // The browser will handle showing the "Please fill out this field" warnings.
-            if (form && !form.checkValidity()) {
-                return; 
-            }
 
-            // 3. If everything is filled out, show the spinning icon
+        function showLoadingState(button) {
+            const form = button.closest('form');
+            if (form && !form.checkValidity()) {
+                return;
+            }
             document.getElementById('paySpinner').classList.remove('d-none');
-            
-            // 4. Change the text to let the user know it's working
             document.getElementById('payText').innerText = 'Processing...';
-            
-            // 5. Disable the button
             setTimeout(() => {
                 button.disabled = true;
             }, 10);
         }
 
-        // NEW: Reset the button when returning via the "Back" button
-        window.addEventListener('pageshow', function(event) {
+        function resetButton() {
             const payButton = document.getElementById('payButton');
             const paySpinner = document.getElementById('paySpinner');
             const payText = document.getElementById('payText');
-
-            // If the button exists and is currently disabled, reset everything
-            if (payButton && payButton.disabled) {
+            if (payButton) {
                 payButton.disabled = false;
                 paySpinner.classList.add('d-none');
                 payText.innerText = 'Proceed to Pay';
             }
+        }
+
+        // Reset the button when returning via the "Back" button
+        window.addEventListener('pageshow', function (event) {
+            resetButton();
         });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
